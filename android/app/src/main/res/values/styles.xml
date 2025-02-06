@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Тема, применяемая к окну Android, пока процесс запускается -->
+    <style name="LaunchTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+
+    <!-- Тема, применяемая к окну Android, как только процесс запускается -->
+    <style name="Theme.App.Transparent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item> <!-- Убираем полноэкранный режим -->
+        <item name="android:windowTranslucentStatus">true</item> <!-- Статус-бар будет прозрачным, но видимым -->
+    </style>
+</resources>
