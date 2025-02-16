@@ -57,7 +57,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
             TextFieldWidget(
               title: 'Familya',
               controller: widget.addressCtr,
-              isAddress: true,
+              isName: true,
               controllerH: widget.controllerH,
             ),
             SizedBox(
@@ -79,8 +79,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                 SizedBox(width: 10),
                 Expanded(
                   child: TextFieldWidget(
-                    isRegion: false,
                     title: 'Telefon raqam',
+                    isPhone: true,
                     controller: widget.phoneCtr,
                     controllerH: widget.controllerH,
                   ),
@@ -113,6 +113,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
               controller: null,
               isPassword: true,
               controllerH: widget.controllerH,
+              isSecPass: true,
             ),
             SizedBox(
               height: 12,

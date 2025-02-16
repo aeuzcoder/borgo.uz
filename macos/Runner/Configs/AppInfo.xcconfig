@@ -8,7 +8,7 @@
 PRODUCT_NAME = borgo
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.borgo
+PRODUCT_BUNDLE_IDENTIFIER = uz.borgo
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 uz.borgo. All rights reserved.

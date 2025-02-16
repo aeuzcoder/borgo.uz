@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:borgo/core/utils/app_colors.dart';
 import 'package:borgo/feature/presentation/controllers/home_controller.dart';
 import 'package:borgo/feature/presentation/pages/loading_page.dart';
@@ -42,6 +40,13 @@ class HomePage extends StatelessWidget {
                       child: Stack(
                         children: [
                           InAppWebView(
+                            initialSettings: InAppWebViewSettings(
+                              disableContextMenu:
+                                  true, // Отключает контекстное меню
+                              javaScriptEnabled: true, // Включает JS
+                              clearCache: true,
+                            ),
+
                             key: ValueKey('InAppWebViewKey'),
                             initialUrlRequest:
                                 URLRequest(url: WebUri(controller.loginUrl)),
@@ -77,13 +82,11 @@ class HomePage extends StatelessWidget {
                                         "refresh": "${controller.refres}"
                                       }));
                                     """);
-                                log('TOKEN YOZILDI');
                                 await webViewController.reload();
                                 await controller.setFirst(false);
                               }
                             },
                             onProgressChanged: (controlle, progress) {
-                              log('PROGRESSSSS: $progress');
                               if (progress == 100) {
                                 if (controller.isLoading2 &&
                                     !controller.isFirstOpen) {
@@ -91,85 +94,99 @@ class HomePage extends StatelessWidget {
                                 }
                               }
                             },
+
+                            //URL_LAUNCHER
                             shouldOverrideUrlLoading:
-                                (controller, navigationAction) async {
+                                (controlle, navigationAction) async {
                               Uri uri = navigationAction.request.url!;
-                              log('🔍 Запрос на переход: ${uri.toString()}');
 
-                              List<String> externalSchemes = [
-                                'tel',
-                                'mailto',
-                                'tg',
-                                'whatsapp',
-                                'vk',
-                                'viber',
-                                'instagram',
-                                'facebook',
-                                'skype'
-                              ];
-
-                              List<String> externalDomains = [
-                                'vk.com',
-                                'twitter.com',
-                                'instagram.com',
-                                'facebook.com',
-                                'linkedin.com',
-                              ];
-                              // Обработка WhatsApp-ссылок
-                              if (uri.scheme == 'whatsapp') {
+                              // WHATSAPP
+                              if (uri.toString().contains('api.whatsapp.com')) {
                                 try {
-                                  // Проверяем, установлен ли WhatsApp
+                                  final text =
+                                      uri.queryParameters['text'] ?? '';
+                                  final encodedText = Uri.encodeComponent(text);
                                   final whatsappUrl = Uri.parse(
-                                      'whatsapp://send?text=${uri.queryParameters['text']}');
+                                      'whatsapp://send?text=$encodedText');
+
                                   if (await canLaunchUrl(whatsappUrl)) {
-                                    // Если WhatsApp установлен, открываем через схему
                                     await launchUrl(whatsappUrl,
                                         mode: LaunchMode.externalApplication);
+
+                                    // 🛑 Останавливаем загрузку WebView
                                     return NavigationActionPolicy.CANCEL;
                                   } else {
-                                    log('❌ WhatsApp не установлен, открываем сайт');
                                     final fallbackUrl = Uri.parse(
-                                        'https://api.whatsapp.com/send?text=${uri.queryParameters['text']}');
+                                        'https://api.whatsapp.com/send?text=$encodedText');
+
                                     if (await canLaunchUrl(fallbackUrl)) {
-                                      // Если WhatsApp не установлен, открываем через сайт
                                       await launchUrl(fallbackUrl,
                                           mode: LaunchMode.externalApplication);
                                       return NavigationActionPolicy.CANCEL;
                                     }
                                   }
                                 } catch (e) {
-                                  log('Ошибка при открытии WhatsApp: $e');
-                                }
-                                return NavigationActionPolicy.CANCEL;
-                              }
-                              if (uri.scheme == 'tg' ||
-                                  uri.host == 'telegram.me' ||
-                                  uri.host == 't.me') {
-                                try {
-                                  if (await canLaunchUrl(uri)) {
-                                    await launchUrl(uri,
-                                        mode: LaunchMode
-                                            .externalNonBrowserApplication);
-                                    return NavigationActionPolicy.CANCEL;
-                                  } else {
-                                    log('❌ Не удалось открыть Telegram-ссылку, пробуем через браузер');
-                                    final fallbackUrl =
-                                        Uri.parse('https://t.me/${uri.path}');
-                                    if (await canLaunchUrl(fallbackUrl)) {
-                                      await launchUrl(fallbackUrl,
-                                          mode: LaunchMode
-                                              .externalNonBrowserApplication);
-                                      return NavigationActionPolicy.CANCEL;
-                                    }
-                                  }
-                                } catch (e) {
-                                  log('Ошибка при открытии Telegram: $e');
+                                  return NavigationActionPolicy.CANCEL;
                                 }
                                 return NavigationActionPolicy.CANCEL;
                               }
 
-                              if (externalSchemes.contains(uri.scheme) ||
-                                  externalDomains.any(
+                              //TELEGRAM
+
+                              if (uri.scheme == 'tg' ||
+                                  uri.host == 'telegram.me' ||
+                                  uri.host == 't.me') {
+                                try {
+                                  debugPrint('TELEGRAMDA');
+                                  final path = uri.pathSegments.isNotEmpty
+                                      ? uri.pathSegments.first
+                                      : '';
+                                  final queryParams = uri.queryParameters;
+
+                                  if (path.startsWith('+') ||
+                                      RegExp(r'^\d+$').hasMatch(path)) {
+                                    final telegramAccountUri =
+                                        Uri.parse('tg://resolve?domain=$path');
+
+                                    if (await canLaunchUrl(
+                                        telegramAccountUri)) {
+                                      await launchUrl(telegramAccountUri,
+                                          mode: LaunchMode
+                                              .externalNonBrowserApplication);
+                                      return NavigationActionPolicy.CANCEL;
+                                    }
+                                  } else {
+                                    final productUrl = queryParams['url'] ?? '';
+                                    final text = queryParams['text'] ?? '';
+
+                                    if (productUrl.isNotEmpty ||
+                                        text.isNotEmpty) {
+                                      final telegramShareUri = Uri.parse(
+                                          'tg://msg?url=${Uri.encodeComponent(productUrl)}&text=${Uri.encodeComponent(text)}');
+
+                                      if (await canLaunchUrl(
+                                          telegramShareUri)) {
+                                        await launchUrl(telegramShareUri,
+                                            mode:
+                                                LaunchMode.externalApplication);
+                                        return NavigationActionPolicy.CANCEL;
+                                      }
+                                      if (await canLaunchUrl(uri)) {
+                                        await launchUrl(uri,
+                                            mode:
+                                                LaunchMode.externalApplication);
+                                      }
+                                    }
+                                  }
+                                } catch (e) {
+                                  return NavigationActionPolicy.CANCEL;
+                                }
+                                return NavigationActionPolicy.CANCEL;
+                              }
+
+                              if (controller.externalSchemes
+                                      .contains(uri.scheme) ||
+                                  controller.externalDomains.any(
                                       (domain) => uri.host.contains(domain))) {
                                 try {
                                   if (await canLaunchUrl(uri)) {
@@ -178,7 +195,7 @@ class HomePage extends StatelessWidget {
                                     return NavigationActionPolicy.CANCEL;
                                   }
                                 } catch (e) {
-                                  log('Ошибка при открытии ссылки: $e');
+                                  return NavigationActionPolicy.CANCEL;
                                 }
                                 return NavigationActionPolicy.CANCEL;
                               }

@@ -1,7 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:borgo/core/errors/exception.dart';
@@ -22,9 +21,7 @@ class NetworkService {
   /* Http Requests */
   static Future<String?> GET(String api, Map<String, dynamic> params) async {
     try {
-      log('uri');
       var uri = Uri.https(getServer(), api, params);
-      log('URI: $uri');
       var response = await client.get(uri);
       if (response.statusCode == 200) {
         return response.body;
@@ -67,7 +64,6 @@ class NetworkService {
         if (response.statusCode == 200 || response.statusCode == 201) {
           return response.body;
         } else {
-          log(response.body);
           _throwException(response);
         }
       } else {
@@ -90,7 +86,6 @@ class NetworkService {
         if (response.statusCode == 200 || response.statusCode == 201) {
           return response.body;
         } else {
-          log(response.body.toString());
           _throwException(response);
         }
       }
@@ -135,20 +130,15 @@ class NetworkService {
     String reason = response.reasonPhrase!;
     switch (response.statusCode) {
       case 400:
-        log('BAD REQUEST EXCEPRION: 400');
         throw BadRequestException(reason);
       case 401:
-        log('INVALID INPUT EXCEPTION: 401');
         throw InvalidInputException(reason);
       case 403:
-        log('UNAUTHORIZED EXCEPRION: 403');
         throw UnauthorisedException(reason);
       case 404:
-        log('FETCH DATA EXCEPRION: 404');
         throw FetchDataException(reason);
       case 500:
       default:
-        log('FETCH DATA EXCEPRION: ERROR');
         throw FetchDataException(reason);
     }
   }

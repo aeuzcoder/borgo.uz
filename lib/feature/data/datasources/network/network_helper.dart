@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:borgo/core/services/log_service.dart';
 import 'package:borgo/feature/data/datasources/db_service.dart';
@@ -15,7 +14,6 @@ class HttpInterceptor implements InterceptorContract {
         // Устанавливаем заголовок для авторизации
         request.headers.clear();
         request.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        log('Authorization Request Headers: ${request.headers}');
       } else {
         // Общие заголовки для остальных запросов
         var accessToken = DBService.to.getAccessToken();
@@ -24,11 +22,9 @@ class HttpInterceptor implements InterceptorContract {
         if (accessToken.isNotEmpty) {
           request.headers['Authorization'] = 'Bearer $accessToken';
         }
-        log('Request Headers: ${request.headers}');
       }
 
       // Логируем URL
-      log('Request URL: ${request.url}');
     } catch (e) {
       LogService.e('Error in interceptRequest: ${e.toString()}');
     }

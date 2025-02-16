@@ -1,4 +1,5 @@
 import 'package:borgo/core/utils/app_colors.dart';
+import 'package:borgo/feature/presentation/controllers/home_controller.dart';
 import 'package:borgo/feature/presentation/controllers/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,6 +11,7 @@ class TextFieldWidget extends StatefulWidget {
   final bool isEmail;
   final bool isAddress;
   final bool isPassword;
+  final bool isSecPass;
   final TextEditingController? controller;
   final GetxController controllerH;
   final bool isRegion;
@@ -24,6 +26,7 @@ class TextFieldWidget extends StatefulWidget {
       this.isAddress = false,
       this.isPassword = false,
       this.isRegion = false,
+      this.isSecPass = false,
       required this.controllerH});
 
   @override
@@ -37,7 +40,17 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   // Универсальная функция валидации
   String? validate(String value) {
     value = value.trim();
-
+    if (widget.isSecPass) {
+      if (value.isEmpty) return 'Parolingizni kiriting';
+      if (value.length < 6) {
+        return 'Parol kamida 6 ta harfdan iborat bo\'ladi';
+      }
+      if (widget.controllerH is LoginController) {
+        if (value != (widget.controllerH as LoginController).passwordCtr.text) {
+          return 'Parolingiz bir biriga mos emas';
+        }
+      }
+    }
     if (widget.isName) {
       if (value.isEmpty) return 'Ismingizni kiriting';
       if (!RegExp(r'^[a-zA-Zа-яА-Я]+$').hasMatch(value)) {
@@ -46,7 +59,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
     }
 
     if (widget.isPhone) {
-      final regex = RegExp(r'^\+?[1-9]\d{7,14}$'); // Исправил маску
+      final regex = RegExp(r'^\+?[1-9]\d{8,9}$'); // Исправил маску
       if (value.isEmpty) return 'Telefon raqamingizni kiriting';
       if (!regex.hasMatch(value)) {
         return 'Telefon raqamingizni to\'g\'ri kiriting';
@@ -80,7 +93,6 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
       children: [
         TextFormField(
           enabled: !widget.isRegion,
-          onTapOutside: (tab) => FocusScope.of(context).unfocus(),
           controller: widget.controller,
           obscureText: widget.isPassword
               ? _obscureText

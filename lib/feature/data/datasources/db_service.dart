@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:borgo/core/errors/exception.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -40,7 +38,6 @@ class DBService {
       },
     );
 
-    log('USER YOZILDI');
     return true;
   }
 
@@ -48,9 +45,7 @@ class DBService {
   Future<Map<String, dynamic>> getUser() async {
     if (_box.hasData(_StorageKeys.user)) {
       final data = _box.read(_StorageKeys.user)! as Map<String, dynamic>;
-      log(data.toString());
       if (data['l'] != null && data['p'] != null) {
-        log('log:${data.entries.first.value}');
         return data;
       } else {
         throw CacheException();

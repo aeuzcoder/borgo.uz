@@ -5,11 +5,13 @@
 
     <!-- Добавляем доступ к схемам URL -->
     <queries>
+        <package android:name="com.whatsapp" />
         <!-- Telegram -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="tg" />
         </intent>
+
 
         <!-- VK -->
         <intent>
@@ -61,13 +63,14 @@
     <application
         android:label="Borgo.uz"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/launcher_icon"
+        android:exported="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop"
-            android:taskAffinity=""
             android:theme="@style/Theme.App.Transparent"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
@@ -82,6 +85,7 @@
 
         <!-- Не удаляй этот meta-data, он нужен для Flutter -->
         <meta-data
+            
             android:name="flutterEmbedding"
             android:value="2"/>
     </application>

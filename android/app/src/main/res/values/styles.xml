@@ -3,13 +3,18 @@
     <!-- Тема, применяемая к окну Android, пока процесс запускается -->
     <style name="LaunchTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
-
     <!-- Тема, применяемая к окну Android, как только процесс запускается -->
     <style name="Theme.App.Transparent" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">false</item> <!-- Убираем полноэкранный режим -->
-        <item name="android:windowTranslucentStatus">true</item> <!-- Статус-бар будет прозрачным, но видимым -->
+        <item name="android:windowFullscreen">false</item>
+        <!-- Убираем полноэкранный режим -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <!-- Статус-бар будет прозрачным, но видимым -->
     </style>
 </resources>

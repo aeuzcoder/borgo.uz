@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:borgo/feature/data/datasources/db_service.dart';
 import 'package:borgo/feature/domain/entities/user_entity.dart';
 import 'package:borgo/feature/presentation/controllers/base_controller.dart';
@@ -78,11 +76,7 @@ class LoginController extends BaseController {
         await DBService.to.setAccessToken(loginData.accessToken);
         await DBService.to.setRefreshToken(loginData.refreshToken);
         final result = await userRepo.setUser(phone, password);
-        result.fold((error) {
-          log(error);
-        }, (res) {
-          log(res);
-        });
+        result.fold((error) {}, (res) {});
       }
       changeError(false, text: null);
       changeLoading(false);

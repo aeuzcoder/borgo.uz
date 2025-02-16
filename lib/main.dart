@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  Get.config(enableLog: false);
   //DB
   await RootService.init();
 
@@ -22,6 +22,7 @@ void main() async {
       statusBarColor: AppColors.bgColor, // Устанавливаем нужный цвет
       statusBarIconBrightness: Brightness.dark, // Белые иконки
       statusBarBrightness: Brightness.dark, // Для iOS
+
       systemNavigationBarColor: AppColors.bgColor, // Цвет нижней панели
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
@@ -36,6 +37,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      enableLog: false,
+      debugShowMaterialGrid: false,
       theme: ThemeData(fontFamily: 'Poppins', useMaterial3: true),
       title: 'Borgo.uz',
       debugShowCheckedModeBanner: false,
