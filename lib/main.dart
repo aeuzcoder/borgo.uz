@@ -2,7 +2,6 @@ import 'package:borgo/core/config/root_binding.dart';
 import 'package:borgo/core/services/root_service.dart';
 import 'package:borgo/core/utils/app_colors.dart';
 import 'package:borgo/feature/presentation/pages/home_page/home_page.dart';
-import 'package:borgo/feature/presentation/pages/login_page/login_page.dart';
 import 'package:borgo/feature/presentation/pages/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -47,7 +46,6 @@ class MyApp extends StatelessWidget {
       transitionDuration: const Duration(milliseconds: 100),
       getPages: [
         GetPage(name: '/home', page: () => HomePage()),
-        GetPage(name: '/login', page: () => LoginPage()),
         GetPage(name: '/splash', page: () => SplashPage()),
       ],
       initialRoute: '/splash',

@@ -1,4 +1,3 @@
-import 'package:borgo/core/errors/exception.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -15,90 +14,36 @@ class DBService {
     }, permanent: true);
   }
 
-  bool isLoggedIn() {
-    String token = getAccessToken();
-    return token.isNotEmpty;
-  }
-
   Future<void> logOut() async {
     await _box.erase();
     await Get.deleteAll();
   }
 
-  /// Set user
-  Future<bool> setUser(String phoneNumber, String password) async {
-    if (_box.hasData(_StorageKeys.user)) {
-      _box.remove(_StorageKeys.user);
-    }
-    await _box.write(
-      _StorageKeys.user,
-      {
-        'l': phoneNumber.toString(),
-        'p': password.toString(),
-      },
-    );
-
-    return true;
-  }
-
-  /// Get user
-  Future<Map<String, dynamic>> getUser() async {
-    if (_box.hasData(_StorageKeys.user)) {
-      final data = _box.read(_StorageKeys.user)! as Map<String, dynamic>;
-      if (data['l'] != null && data['p'] != null) {
-        return data;
-      } else {
-        throw CacheException();
-      }
-    } else {
-      throw CacheException();
-    }
-  }
-
-  //Delete user
-  Future<void> deleteUser() async {
-    if (_box.hasData(_StorageKeys.user)) {
-      await _box.remove(_StorageKeys.user);
-    }
-  }
-
-  // FIRST OPEN
-  Future<void> setFirstOpen(bool state) async {
-    await _box.write(_StorageKeys.first, state);
-  }
-
-  // FIRST GET
-  Future<bool> getFirstOpen() async {
-    if (_box.hasData(_StorageKeys.first)) {
-      return await _box.read(_StorageKeys.first) ?? true;
-    } else {
-      return true;
-    }
-  }
-
-  // FIRST delete
-  Future<void> delFirstOpen() async {
-    if (_box.hasData(_StorageKeys.first)) {
-      await _box.remove(_StorageKeys.first);
-    }
-  }
-
-  /// Access Token
-  Future<void> setAccessToken(String? value) async {
-    await _box.write(_StorageKeys.accessToken, value);
-  }
-
-  String getAccessToken() {
-    return _box.read(_StorageKeys.accessToken) ?? "";
-  }
-
-  Future<void> delAccessToken() async {
-    await _box.remove(_StorageKeys.accessToken);
-  }
-
   /// Refresh Token
   Future<void> setRefreshToken(String? value) async {
     await _box.write(_StorageKeys.refreshToken, value);
+    final now = DateTime.now().toIso8601String();
+    await _box.write(_StorageKeys.tokenData, now);
+  }
+
+  String? getDataToken() {
+    if (_box.hasData(_StorageKeys.tokenData)) {
+      return _box.read(_StorageKeys.tokenData);
+    } else {
+      return null;
+    }
+  }
+
+  Future<bool> isTokenExpired() async {
+    final savedDate = _box.read(_StorageKeys.tokenData);
+
+    // Преобразуем строку в дату
+    final saveDateTime = DateTime.parse(savedDate);
+    final now = DateTime.now();
+
+    // Проверяем, прошло ли 48 часов (2 дня)
+    final difference = now.difference(saveDateTime).inDays;
+    return difference >= 3;
   }
 
   String getRefreshToken() {
@@ -108,36 +53,9 @@ class DBService {
   Future<void> delRefreshToken() async {
     await _box.remove(_StorageKeys.refreshToken);
   }
-
-  Future<void> setLanguage(String code) async {
-    await _box.write(_StorageKeys.language, code);
-  }
-
-  /// Pin Code
-  Future<void> setPinCode(String value) async {
-    await _box.write(_StorageKeys.pinCode, value);
-  }
-
-  String getPinCode() {
-    return _box.read(_StorageKeys.pinCode) ?? "";
-  }
-
-  /// Face/Touch ID
-  Future<void> setBiometrics(bool value) async {
-    await _box.write(_StorageKeys.biometrics, value);
-  }
-
-  bool getBiometrics() {
-    return _box.read(_StorageKeys.biometrics) ?? false;
-  }
 }
 
 class _StorageKeys {
-  static const accessToken = 'access_token';
+  static const tokenData = 'token_data';
   static const refreshToken = 'refresh_token';
-  static const language = 'language';
-  static const user = 'user';
-  static const first = 'first';
-  static const pinCode = 'pin_code';
-  static const biometrics = 'biometrics';
 }

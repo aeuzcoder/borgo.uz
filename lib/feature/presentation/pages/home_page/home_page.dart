@@ -1,7 +1,6 @@
 import 'package:borgo/core/utils/app_colors.dart';
 import 'package:borgo/feature/presentation/controllers/home_controller.dart';
 import 'package:borgo/feature/presentation/pages/loading_page.dart';
-import 'package:borgo/feature/presentation/pages/login_page/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -57,6 +56,7 @@ class HomePage extends StatelessWidget {
                                 supportZoom: false,
                               ),
                             ),
+
                             onWebViewCreated: (InAppWebViewController
                                 webViewController) async {
                               controller.controller = webViewController;
@@ -64,9 +64,13 @@ class HomePage extends StatelessWidget {
                             },
                             onUpdateVisitedHistory:
                                 (controlle, url, isReload) async {
-                              if (url.toString().contains('borgo.uz/login')) {
-                                await controller.delFirst();
-                                Get.offAll(() => LoginPage());
+                              //LOGIN BOGANDA
+                              if (url.toString().contains(
+                                  'https://borgo.uz/profile/dashboard')) {
+                                final localStorage =
+                                    await controller.getLocalStorage(controlle);
+
+                                controller.getRefreshToken(localStorage);
                               }
                             },
                             onLoadStop:
@@ -74,6 +78,8 @@ class HomePage extends StatelessWidget {
                                     Uri? url) async {
                               if (url.toString() ==
                                       controller.loginUrl.toString() &&
+                                  controller.access != null &&
+                                  controller.refres != null &&
                                   controller.isFirstOpen) {
                                 await webViewController
                                     .evaluateJavascript(source: """
@@ -83,7 +89,9 @@ class HomePage extends StatelessWidget {
                                       }));
                                     """);
                                 await webViewController.reload();
-                                await controller.setFirst(false);
+                                controller.changeFirst(false);
+                              } else {
+                                controller.changeFirst(false);
                               }
                             },
                             onProgressChanged: (controlle, progress) {

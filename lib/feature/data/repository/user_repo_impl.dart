@@ -1,76 +1,28 @@
-import 'dart:convert';
-
-import 'package:borgo/core/errors/exception.dart';
-import 'package:borgo/core/network/api_constants.dart';
-import 'package:borgo/feature/data/datasources/db_service.dart';
-import 'package:borgo/feature/data/datasources/network/network_service.dart';
-import 'package:borgo/feature/data/models/sign_in_model.dart';
-import 'package:borgo/feature/data/models/user_model.dart';
-import 'package:borgo/feature/domain/entities/sign_in_entity.dart';
-import 'package:borgo/feature/domain/entities/user_entity.dart';
 import 'package:borgo/feature/domain/repostitory/user_repo.dart';
 import 'package:dartz/dartz.dart';
-import 'package:http_interceptor/http_interceptor.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class UserRepoImpl implements UserRepo {
   @override
-  Future<Either<String, Map<String, dynamic>>> getUser() async {
+  Future<Either<String, String>> getRefresh(String refreshToken) async {
     try {
-      var result = await DBService.to.getUser();
+      final url = Uri.parse('https://api.borgo.uz/en/api/auth/token/refresh/');
 
-      return Right(result);
-    } on CacheException {
-      return Left('User ro`yhatdan o`tmagan');
-    }
-  }
-
-  @override
-  Future<Either<String, SignInEntity>> signIn(
-      {required String phone, required String password}) async {
-    try {
-      final response = await NetworkService.POST(
-        ApiConstants.TOKEN,
-        {
-          'phone': phone,
-          'password': password,
-        },
-        isAuth: true,
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refresh': refreshToken}),
       );
-      final resultJson = jsonDecode(response!);
 
-      final result = SignInModel.fromJson(resultJson);
-
-      return Right(result);
-    } on InvalidInputException {
-      return Left('Login yoki parolda xatolik');
-    } on ClientException {
-      return Left('Internet bilan bog`lanib bolmadi');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return Right(data['access']); // Возвращаем access token
+      } else {
+        return Left('Error: ${response.statusCode}, ${response.body}');
+      }
     } catch (e) {
       return Left(e.toString());
-    }
-  }
-
-  @override
-  Future<Either<String, String>> signUp({required UserEntity user}) async {
-    try {
-      var response = await NetworkService.POST(
-          ApiConstants.REGISTER, createUserFromEntity(user));
-      var result = jsonDecode(response ?? '');
-      return Right(result['message'] ?? 'Ro\'yhatdan otdingiz');
-    } on BadRequestException {
-      return Left('Bu raqam orqali oldin ro`yhatdan o`tilgan');
-    } catch (e) {
-      return Left(e.toString());
-    }
-  }
-
-  @override
-  Future<Either<String, String>> setUser(String phone, String password) async {
-    var response = await DBService.to.setUser(phone, password);
-    if (response) {
-      return Right('User saqlandi');
-    } else {
-      return Left('User ma`lumoti bor');
     }
   }
 }
