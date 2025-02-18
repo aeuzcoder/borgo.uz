@@ -1,4 +1,5 @@
 import 'package:borgo/core/utils/app_colors.dart';
+import 'package:borgo/feature/data/datasources/db_service.dart';
 import 'package:borgo/feature/presentation/controllers/home_controller.dart';
 import 'package:borgo/feature/presentation/pages/loading_page.dart';
 import 'package:flutter/material.dart';
@@ -62,20 +63,35 @@ class HomePage extends StatelessWidget {
                               controller.controller = webViewController;
                               controller.change2(true);
                             },
-                            onUpdateVisitedHistory:
-                                (controlle, url, isReload) async {
-                              //LOGIN BOGANDA
-                              if (url.toString().contains(
-                                  'https://borgo.uz/profile/dashboard')) {
+                            onTitleChanged: (controlle, title) async {
+                              if (title == 'BORGO.UZ - Kirish') {
+                                await controller.changeLogin(false);
+                                controller.changeTokens();
+                              }
+                              if (title == 'BORGO.UZ - Dashboard' &&
+                                  !controller.loginData) {
+                                //LOGIN BOGANDA
+
                                 final localStorage =
                                     await controller.getLocalStorage(controlle);
-
+                                if (localStorage == null) {
+                                  return;
+                                }
                                 controller.getRefreshToken(localStorage);
+
+                                await controller.changeLogin(true);
                               }
                             },
+                            onUpdateVisitedHistory:
+                                (controlle, url, isReload) async {},
                             onLoadStop:
                                 (InAppWebViewController webViewController,
                                     Uri? url) async {
+                              if (url.toString() ==
+                                      controller.loginUrl.toString() &&
+                                  !controller.isFirstOpen) {
+                                controller.change2(false);
+                              }
                               if (url.toString() ==
                                       controller.loginUrl.toString() &&
                                   controller.access != null &&
@@ -88,10 +104,13 @@ class HomePage extends StatelessWidget {
                                         "refresh": "${controller.refres}"
                                       }));
                                     """);
+                                await DBService.to.changeLogin(true);
                                 await webViewController.reload();
                                 controller.changeFirst(false);
-                              } else {
+                              }
+                              if (controller.isFirstOpen) {
                                 controller.changeFirst(false);
+                                controller.change2(false);
                               }
                             },
                             onProgressChanged: (controlle, progress) {
@@ -145,7 +164,6 @@ class HomePage extends StatelessWidget {
                                   uri.host == 'telegram.me' ||
                                   uri.host == 't.me') {
                                 try {
-                                  debugPrint('TELEGRAMDA');
                                   final path = uri.pathSegments.isNotEmpty
                                       ? uri.pathSegments.first
                                       : '';

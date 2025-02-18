@@ -21,9 +21,26 @@ class DBService {
 
   /// Refresh Token
   Future<void> setRefreshToken(String? value) async {
-    await _box.write(_StorageKeys.refreshToken, value);
+    await _box.write(_StorageKeys.refreshToken, value ?? '');
     final now = DateTime.now().toIso8601String();
     await _box.write(_StorageKeys.tokenData, now);
+  }
+
+  Future<String> getLogin() async {
+    if (!_box.hasData(_StorageKeys.login)) {
+      await _box.write(_StorageKeys.login, '0');
+    }
+    return await _box.read(_StorageKeys.login);
+  }
+
+  Future<void> changeLogin(bool status) async {
+    if (_box.hasData(_StorageKeys.login)) {
+      _box.remove(_StorageKeys.login);
+    }
+    if (!status) {
+      await delRefreshToken();
+    }
+    _box.write(_StorageKeys.login, status == true ? '1' : '0');
   }
 
   String? getDataToken() {
@@ -36,14 +53,17 @@ class DBService {
 
   Future<bool> isTokenExpired() async {
     final savedDate = _box.read(_StorageKeys.tokenData);
+    if (savedDate == null) {
+      return false;
+    }
 
     // Преобразуем строку в дату
     final saveDateTime = DateTime.parse(savedDate);
     final now = DateTime.now();
 
     // Проверяем, прошло ли 48 часов (2 дня)
-    final difference = now.difference(saveDateTime).inDays;
-    return difference >= 3;
+    final difference = now.difference(saveDateTime).inSeconds;
+    return difference >= 15;
   }
 
   String getRefreshToken() {
@@ -58,4 +78,5 @@ class DBService {
 class _StorageKeys {
   static const tokenData = 'token_data';
   static const refreshToken = 'refresh_token';
+  static const login = 'login';
 }
