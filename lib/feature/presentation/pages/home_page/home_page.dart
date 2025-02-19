@@ -5,6 +5,7 @@ import 'package:borgo/feature/presentation/pages/loading_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
@@ -76,6 +77,20 @@ class _HomePageState extends State<HomePage> {
                       if (localStorage != null) {
                         await controller.getRefreshToken(localStorage);
                         await controller.changeLogin(true);
+                      }
+                    } else if (title == 'BORGO.UZ - E\'lon yaratish' &&
+                        controller.loginData) {
+                      final status = await Permission.camera.request();
+                      if (status.isDenied) {
+                        debugPrint("Доступ к камере запрещён!");
+                        return;
+                      }
+
+                      if (status.isPermanentlyDenied) {
+                        return;
+                      }
+                      if (status.isGranted) {
+                        return;
                       }
                     }
                   },
@@ -150,6 +165,7 @@ class _HomePageState extends State<HomePage> {
                         uri.host == 'telegram.me' ||
                         uri.host == 't.me') {
                       try {
+                        debugPrint('⚡ Переход по ссылке: $uri');
                         final path = uri.pathSegments.isNotEmpty
                             ? uri.pathSegments.first
                             : '';
@@ -181,6 +197,16 @@ class _HomePageState extends State<HomePage> {
                             if (await canLaunchUrl(uri)) {
                               await launchUrl(uri,
                                   mode: LaunchMode.externalApplication);
+                              return NavigationActionPolicy.CANCEL;
+                            }
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri,
+                                  mode: LaunchMode.externalApplication);
+                            } else {
+                              // Попробуем открыть ссылку через браузер
+                              await launchUrl(uri,
+                                  mode: LaunchMode.platformDefault);
+                              return NavigationActionPolicy.CANCEL;
                             }
                           }
                         }

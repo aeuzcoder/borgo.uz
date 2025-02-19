@@ -69,5 +69,22 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+
+	<!-- Разрешение на использование камеры -->
+	<key>NSCameraUsageDescription</key>
+	<string>Это приложение использует камеру для захвата изображений.</string>
+
+	<!-- Разрешение на доступ к фото -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Это приложение требует доступ к фотогалерее для загрузки изображений.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Это приложение требует доступ к сохранению изображений в фотогалерею.</string>
+
+	<!-- Разрешение на доступ к файлам -->
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+
 </dict>
 </plist>
