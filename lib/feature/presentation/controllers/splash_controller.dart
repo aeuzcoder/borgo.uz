@@ -7,20 +7,7 @@ import 'package:get/get.dart';
 import 'base_controller.dart';
 
 class SplashController extends BaseController {
-  @override
-  void onInit() async {
-    super.onInit();
-
-    await initTimer(1);
-  }
-
-  initTimer(int second) async {
-    Timer(Duration(seconds: second), () {
-      _callNextPage();
-    });
-  }
-
-  _callNextPage() async {
+  callNextPage() async {
     if (DBService.to.getDataToken() != null) {
       if (await DBService.to.isTokenExpired()) {
         final refreshToken = DBService.to.getRefreshToken();

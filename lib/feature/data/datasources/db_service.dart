@@ -62,8 +62,8 @@ class DBService {
     final now = DateTime.now();
 
     // Проверяем, прошло ли 48 часов (2 дня)
-    final difference = now.difference(saveDateTime).inSeconds;
-    return difference >= 15;
+    final difference = now.difference(saveDateTime).inDays;
+    return difference >= 7;
   }
 
   String getRefreshToken() {

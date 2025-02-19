@@ -89,11 +89,6 @@ class HomePage extends StatelessWidget {
                                     Uri? url) async {
                               if (url.toString() ==
                                       controller.loginUrl.toString() &&
-                                  !controller.isFirstOpen) {
-                                controller.change2(false);
-                              }
-                              if (url.toString() ==
-                                      controller.loginUrl.toString() &&
                                   controller.access != null &&
                                   controller.refres != null &&
                                   controller.isFirstOpen) {
@@ -107,6 +102,7 @@ class HomePage extends StatelessWidget {
                                 await DBService.to.changeLogin(true);
                                 await webViewController.reload();
                                 controller.changeFirst(false);
+                                return;
                               }
                               if (controller.isFirstOpen) {
                                 controller.changeFirst(false);

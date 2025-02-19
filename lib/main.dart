@@ -8,8 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  Get.config(enableLog: false);
   //DB
   await RootService.init();
 
