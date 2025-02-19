@@ -65,9 +65,9 @@ class DBService {
     final now = DateTime.now();
 
     // Проверяем, прошло ли 48 часов (2 дня)
-    final difference = now.difference(saveDateTime).inSeconds;
-    debugPrint('TOKEN BAZADA: ${difference >= 1}');
-    return difference >= 1;
+    final difference = now.difference(saveDateTime).inDays;
+    debugPrint('TOKEN BAZADA: ${difference >= 7}');
+    return difference >= 7;
   }
 
   String getRefreshToken() {
