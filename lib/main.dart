@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      enableLog: false,
+      enableLog: true,
       debugShowMaterialGrid: false,
       theme: ThemeData(fontFamily: 'Poppins', useMaterial3: true),
       title: 'Borgo.uz',

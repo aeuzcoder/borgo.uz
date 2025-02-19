@@ -1,17 +1,16 @@
 import 'dart:convert';
-
 import 'package:borgo/feature/data/datasources/db_service.dart';
 import 'package:borgo/feature/presentation/controllers/base_controller.dart';
+
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 
 class HomeController extends BaseController {
-  InAppWebViewController? controller;
   bool isFirstOpen = true;
   late bool loginData;
-  late String? access;
-  late String? refres;
-  List<String> externalSchemes = [
+  String? access, refres;
+
+  final List<String> externalSchemes = [
     'tel',
     'mailto',
     'tg',
@@ -22,7 +21,8 @@ class HomeController extends BaseController {
     'facebook',
     'skype'
   ];
-  List<String> externalDomains = [
+
+  final List<String> externalDomains = [
     'vk.com',
     'twitter.com',
     'instagram.com',
@@ -39,61 +39,38 @@ class HomeController extends BaseController {
     changeLoading(true);
 
     final arguments = await Get.arguments;
-    final resultLogin = await DBService.to.getLogin();
-    if (resultLogin == '1') {
-      loginData = true;
-    } else {
-      loginData = false;
-    }
-    if (arguments != null) {
-      access = arguments['access'];
-      refres = arguments['refresh'];
-      DBService.to.setRefreshToken(refres);
-    } else {
-      access = null;
-      refres = null;
-    }
+    loginData = (await DBService.to.getLogin()) == '1';
 
-    if (access != null && refres != null) {
-      change2(true);
-    }
+    access = arguments?['access'];
+    refres = arguments?['refresh'];
+
+    if (refres != null) DBService.to.setRefreshToken(refres!);
+    if (access != null && refres != null) change2(true);
 
     changeLoading(false);
   }
 
   Future<String?> getRefreshToken(Map<String, dynamic> data) async {
-    if (data.containsKey('AuthTokenBorgoUser')) {
-      final authToken = jsonDecode(data['AuthTokenBorgoUser'] ?? '');
+    final authToken = jsonDecode(data['AuthTokenBorgoUser'] ?? '{}');
+    final refreshToken = authToken['refresh']?.toString();
 
-      if (authToken.containsKey('refresh') &&
-          authToken['refresh'].toString().isNotEmpty) {
-        final refreshToken = authToken['refresh'];
-        await DBService.to.setRefreshToken(refreshToken);
-        return authToken['refresh'];
-      }
+    if (refreshToken?.isNotEmpty == true) {
+      await DBService.to.setRefreshToken(refreshToken!);
+      return refreshToken;
     }
-
     return null;
   }
 
   Future<Map<String, dynamic>?> getLocalStorage(
-      InAppWebViewController webViewController) async {
-    var localStorageData =
-        await webViewController.evaluateJavascript(source: """
-    JSON.stringify(localStorage);
-  """);
-    Map<String, dynamic> result =
-        await jsonDecode(localStorageData ?? '') ?? {};
-    if (!result.containsKey('AuthTokenBorgoUser')) {
-      return null;
-    }
-
-    return jsonDecode(localStorageData ?? '') ?? {};
+      InAppWebViewController controller) async {
+    final localStorageData = await controller.evaluateJavascript(
+        source: "JSON.stringify(localStorage)");
+    final result = jsonDecode(localStorageData ?? '{}');
+    return result.containsKey('AuthTokenBorgoUser') ? result : null;
   }
 
   void changeFirst(bool status) {
     isFirstOpen = status;
-
     update();
   }
 
@@ -104,8 +81,7 @@ class HomeController extends BaseController {
   }
 
   void changeTokens() {
-    access = null;
-    refres = null;
+    access = refres = null;
     update();
   }
 

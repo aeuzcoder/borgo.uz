@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -23,6 +24,7 @@ class DBService {
   Future<void> setRefreshToken(String? value) async {
     await _box.write(_StorageKeys.refreshToken, value ?? '');
     final now = DateTime.now().toIso8601String();
+    debugPrint('REFRESH TOKEN YOZILDI');
     await _box.write(_StorageKeys.tokenData, now);
   }
 
@@ -40,6 +42,7 @@ class DBService {
     if (!status) {
       await delRefreshToken();
     }
+    debugPrint('LOGIN XOLATI: ${status == true ? '1' : '0'}');
     _box.write(_StorageKeys.login, status == true ? '1' : '0');
   }
 
@@ -62,15 +65,18 @@ class DBService {
     final now = DateTime.now();
 
     // Проверяем, прошло ли 48 часов (2 дня)
-    final difference = now.difference(saveDateTime).inDays;
-    return difference >= 7;
+    final difference = now.difference(saveDateTime).inSeconds;
+    debugPrint('TOKEN BAZADA: ${difference >= 1}');
+    return difference >= 1;
   }
 
   String getRefreshToken() {
+    debugPrint('REFRESH TOKEN OLINDI');
     return _box.read(_StorageKeys.refreshToken) ?? "";
   }
 
   Future<void> delRefreshToken() async {
+    debugPrint('REFRESH TOKEN OCHIRILDI');
     await _box.remove(_StorageKeys.refreshToken);
   }
 }
