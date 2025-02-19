@@ -14,19 +14,27 @@ class SplashController extends BaseController {
 
         accessToken.fold((error) {
           debugPrint('ERROR: $error');
-          Get.offAll(() => HomePage());
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Get.offAll(() => HomePage());
+          });
         }, (access) {
           debugPrint('ACCES TOKEN OLINDI VA HOMEGA JONATILDI');
-          Get.offAll(() => HomePage(),
-              arguments: {'access': access, 'refresh': refreshToken});
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Get.offAll(() => HomePage(),
+                arguments: {'access': access, 'refresh': refreshToken});
+          });
         });
       } else {
         debugPrint('TOKEN MUDDATI TUGAMAGAN');
-        Get.offAll(() => HomePage());
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.offAll(() => HomePage());
+        });
       }
     } else {
       debugPrint('ROYHATDAN OTMAGAN');
-      Get.offAll(() => HomePage());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.offAll(() => HomePage());
+      });
     }
   }
 }
